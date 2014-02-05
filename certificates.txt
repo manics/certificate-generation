@@ -20,14 +20,15 @@ INTERMEDIATE_CA_DAYS=366
 SSL_SERVER_BITS=2048
 SSL_SERVER_DAYS=366
 
-rm ca.* public.* server* store.*
+mkdir -p out
+rm -f out/*
 
 # Certificate authority private key:
-openssl genrsa -des3 -out ca.key $ROOT_CA_BITS
+openssl genrsa -des3 -out out/ca.key $ROOT_CA_BITS
 
 # Certificate authority certificate:
 # You will be prompted for a common name and email
-openssl req -new -x509 -key ca.key -out ca.crt -config openssl.cnf -days $ROOT_CA_DAYS
+openssl req -new -x509 -key out/ca.key -out out/ca.crt -config openssl.cnf -days $ROOT_CA_DAYS
 
 
 
@@ -35,15 +36,15 @@ openssl req -new -x509 -key ca.key -out ca.crt -config openssl.cnf -days $ROOT_C
 # -----------------------------------------
 
 # Create the key
-openssl genrsa -out ia.key $INTERMEDIATE_CA_BITS
+openssl genrsa -out out/ia.key $INTERMEDIATE_CA_BITS
 
 # Certificate request for subordinate CA
 # You will be prompted for a common name (shown as Publisher name in the
 # webstart dialog) and email
-openssl req -new -key ia.key -out ia.csr -config openssl.cnf
+openssl req -new -key out/ia.key -out out/ia.csr -config openssl.cnf
 
 # Sign certificate request:
-openssl x509 -req -in ia.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out ia.crt -days $INTERMEDIATE_CA_DAYS
+openssl x509 -req -in out/ia.csr -CA out/ca.crt -CAkey out/ca.key -CAcreateserial -out out/ia.crt -days $INTERMEDIATE_CA_DAYS
 
 
 
@@ -51,12 +52,12 @@ openssl x509 -req -in ia.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out ia.cr
 # ----------------------
 
 # Create the key
-openssl genrsa -out server-private.key $SSL_SERVER_BITS
+openssl genrsa -out out/server-private.key $SSL_SERVER_BITS
 
 # Certificate request for SSL certificate
 # You will be prompted for a common name (server Domain name) and email
-openssl req -new -key server-private.key -out server.csr -config openssl.cnf
+openssl req -new -key out/server-private.key -out out/server.csr -config openssl.cnf
 
 # Sign certificate request:
-openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server-public.crt -days $SSL_SERVER_DAYS
+openssl x509 -req -in out/server.csr -CA out/ca.crt -CAkey out/ca.key -CAcreateserial -out out/server-public.crt -days $SSL_SERVER_DAYS
 

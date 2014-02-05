@@ -5,14 +5,14 @@
 
 CAALIAS=ca-testcodesign
 ALIAS=testcodesign
-SERVER_KEYSTORE=store.p12
+SERVER_KEYSTORE=out/store.p12
 SERVER_KEYSTORE_PASSWORD=XXXXXX
 
-JAVA_KEYSTORE=store.jks
+JAVA_KEYSTORE=out/store.jks
 # Keep this the same to avoid confusion
 JAVA_KEYSTORE_PASSWORD="$SERVER_KEYSTORE_PASSWORD"
 
-PUBLIC_KEYSTORE=public.jks
+PUBLIC_KEYSTORE=out/public.jks
 PUBLIC_PASSWORD=PUBLIC
 
 TIMESTAMP_SERVER=http://time.certum.pl
@@ -22,16 +22,16 @@ TIMESTAMP_SERVER=http://time.certum.pl
 # keys in this format to being with (openssl pkcs12 ...) or convert from x509
 # (pem) format.
 # When prompted for a password enter $SERVER_KEYSTORE_PASSWORD
-openssl pkcs12 -export -in ia.crt -inkey ia.key -out "$SERVER_KEYSTORE" -name "$ALIAS"
+openssl pkcs12 -export -in out/ia.crt -inkey out/ia.key -out "$SERVER_KEYSTORE" -name "$ALIAS"
 
 # Convert certificate store to jks format
 keytool -importkeystore -deststorepass "$JAVA_KEYSTORE_PASSWORD" -destkeypass "$SERVER_KEYSTORE_PASSWORD" -destkeystore "$JAVA_KEYSTORE" -srckeystore "$SERVER_KEYSTORE" -srcstoretype pkcs12 -srcstorepass "$SERVER_KEYSTORE_PASSWORD" -alias "$ALIAS"
 
 # Add the CA root public certificate so that we can verify the full chain
-keytool -import -file ca.crt -alias "$CAALIAS" -keystore "$JAVA_KEYSTORE" -storepass "$JAVA_KEYSTORE_PASSWORD"
+keytool -import -file out/ca.crt -alias "$CAALIAS" -keystore "$JAVA_KEYSTORE" -storepass "$JAVA_KEYSTORE_PASSWORD"
 
 # List certificates
-keytool -list -storetype pkcs12 -keystore "$SERVER_KEYSTORE" -v -storepass  "$SERVER_KEYSTORE_PASSWORD"
+keytool -list -storetype pkcs12 -keystore "$SERVER_KEYSTORE" -v -storepass "$SERVER_KEYSTORE_PASSWORD"
 keytool -list -keystore "$JAVA_KEYSTORE" -v -storepass  "$JAVA_KEYSTORE_PASSWORD"
 
 
@@ -48,12 +48,12 @@ jarsigner -keystore "$JAVA_KEYSTORE" testjar.jar "$ALIAS" -storepass "$JAVA_KEYS
 
 # Optionally create a public keystore for verification
 # Import the root CA (optionally add -noprompt to suppress prompt)
-keytool -import -file ca.crt -alias "$CAALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD"
-#keytool -import -file ca.crt -alias "$CAALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD" -noprompt
+keytool -import -file out/ca.crt -alias "$CAALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD"
+#keytool -import -file out/ca.crt -alias "$CAALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD" -noprompt
 
 # Import the code-signing cert (since the root CA has been added there
 # shouldn't be a prompt)
-keytool -import -file ia.crt -alias "$ALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD"
+keytool -import -file out/ia.crt -alias "$ALIAS" -keystore "$PUBLIC_KEYSTORE" -storepass "$PUBLIC_PASSWORD"
 
 # Verify using system certificates
 jarsigner -verify -verbose -certs testjar.jar
@@ -65,11 +65,11 @@ jarsigner -verify -verbose -certs testjar.jar -keystore "$PUBLIC_KEYSTORE"
 
 # Create a p12 CA certicate for importing via the Java Control Panel to
 # User, Signer CA (requires a .p12 extension)
-cp ca.crt ca.p12
+cp out/ca.crt out/ca.p12
 
 # Import this by going to the Java Control Panel (System Preferences, or
 # Control Panel), Security, Manage Certificates. Select Signer CA, User,
-# Import, Select ca.p12
+# Import, Select out/ca.p12
 
 # Note jarsigner -verify ignores these user certificates, however it should
 # be recognised by Java web applications
