@@ -13,10 +13,11 @@ java-jar-sign.txt
 -----------------
 Use the code signing certificate previously obtained to sign a jar
 
-java-jar-selfsign.txt
----------------------
-Create a standalone self-signed certificate for signing a jar
-
 java-jar-sign-openmicroscopy.txt
 --------------------------------
-Use the code signing certificate to sign the openmicroscopy webvstart jars
+Use the code signing certificate to sign the openmicroscopy webstart jars
+
+java-jar-selfsign.txt
+---------------------
+Create a standalone self-signed certificate for signing a jar in case you don't want to create a root CA
+
