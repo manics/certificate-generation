@@ -1,0 +1,16 @@
+# Signing jars for webstart in openmicroscopy
+# ===========================================
+# First create certificates and keystore by following the guide in
+# java-jar-sign.txt
+
+# Building openmicroscopy
+./build.py
+# Sign jars, passing properties to the keystore
+./build.py release-webstart -Djarsign.keystore=/path/to/store.jks -Djarsign.alias=testcodesign -Djarsign.storepass=XXXXXX -Djarsign.validity=366
+
+# Note jarsigner won't take into account certificates that have been added
+# via the Java Control Panel, so the following will show the jar as signed but
+# not verified
+jarsigner -verify -verbose -certs openmicroscopy/dist/lib/insight/omero.insight.jar
+
+

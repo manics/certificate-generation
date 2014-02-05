@@ -1,0 +1,31 @@
+
+# Self signing code certificate
+#   http://stackoverflow.com/questions/4920072/keytool-genkey-error-keystore-file-does-not-exis)
+#  http://support.godaddy.com/help/article/4780/signing-java-code
+
+DNAME="CN=Test Signer, OU=Test Unit, O=Test Organisation, L=Dundee, C=UK"
+ALIAS="testsign"
+KEYSTORE="store.jks"
+CODESIGN_DAYS=366
+
+# Create a new alias (creates a keystore if necessary)
+keytool -genkey -alias "$ALIAS" -dname "$DNAME" -keystore "$KEYSTORE"
+
+# Create the certificate
+keytool -selfcert -alias "$ALIAS" -keystore "$KEYSTORE" -validity $CODESIGN_DAYS
+
+# List certificates
+keytool -list -keystore "$KEYSTORE"
+
+# Delete
+# keytool -delete -alias "$ALIAS" -keystore "$KEYSTORE"
+
+
+
+
+# Create a jar
+javac testjar/Test.java
+jar cfm testjar.jar testjar/MANIFEST.MF testjar/Test.*
+java -jar testjar.jar
+
+
