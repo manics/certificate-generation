@@ -30,12 +30,12 @@ jarsign() {
 SERVERZIP=
 if [ -f "$SERVER" ]; then
     SERVERZIP="$SERVER"
-    SERVER=${SERVER%.zip}
+    SERVER="`basename ${SERVER%.zip}`"
     if [ -e "$SERVER" ]; then
         echo "ERROR: $SERVER already exists, delete this file/directory"
         exit 2
     fi
-    unzip "$SERVER"
+    unzip "$SERVERZIP"
 fi
 
 for jar in "$SERVER"/lib/client/*.jar; do
