@@ -15,7 +15,7 @@ ALIAS="$4"
 SERVER="$5"
 # GoDaddy timestamp server (set to empty to disable)
 TIMESTAMP_SERVER=http://tsa.starfieldtech.com
-TIMESTAMP_SERVER=
+#TIMESTAMP_SERVER=
 
 jarsign() {
     JAR="$1"
