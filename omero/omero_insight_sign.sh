@@ -35,6 +35,11 @@ if [ -f "$SERVER" ]; then
         echo "ERROR: $SERVER already exists, delete this file/directory"
         exit 2
     fi
+    SERVERZIPOUT="$SERVER-jarsigned.zip"
+    if [ -e "$SERVERZIPOUT" ]; then
+        echo "ERROR: $SERVERZIPOUT already exists, delete this file/directory"
+        exit 2
+    fi
     unzip "$SERVERZIP"
 fi
 
@@ -43,8 +48,8 @@ for jar in "$SERVER"/lib/insight/*.jar; do
 done
 
 if [ -n "$SERVERZIP" ]; then
-    zip -r "$SERVER-jarsigned.zip" "$SERVER"
-    md5sum "$SERVER-jarsigned.zip" > "$SERVER-jarsigned.zip.md5"
+    zip -r "$SERVERZIPOUT" "$SERVER"
+    md5sum "$SERVERZIPOUT" > "$SERVERZIPOUT.md5"
 fi
 
 rm -r "$SERVER"
