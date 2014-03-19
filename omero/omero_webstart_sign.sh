@@ -43,7 +43,6 @@ for jar in "$SERVER"/lib/insight/*.jar; do
 done
 
 if [ -n "$SERVERZIP" ]; then
-    mv "$SERVERZIP" "$SERVERZIP".unsigned
     zip -r "$SERVER-jarsigned.zip" "$SERVER"
     md5sum "$SERVER-jarsigned.zip" > "$SERVER-jarsigned.zip.md5"
 fi
