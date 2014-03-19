@@ -38,7 +38,7 @@ if [ -f "$SERVER" ]; then
     unzip "$SERVERZIP"
 fi
 
-for jar in "$SERVER"/lib/client/*.jar; do
+for jar in "$SERVER"/lib/insight/*.jar; do
     jarsign "$jar"
 done
 
