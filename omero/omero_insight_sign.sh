@@ -50,6 +50,5 @@ done
 if [ -n "$SERVERZIP" ]; then
     zip -r "$SERVERZIPOUT" "$SERVER"
     md5sum "$SERVERZIPOUT" > "$SERVERZIPOUT.md5"
+    rm -r "$SERVER"
 fi
-
-rm -r "$SERVER"
