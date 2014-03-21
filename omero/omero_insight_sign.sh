@@ -13,17 +13,39 @@ JAVA_KEYSTORE_PASSWORD="$2"
 JAVA_PRIVKEY_PASSWORD="$3"
 ALIAS="$4"
 SERVER="$5"
-# GoDaddy timestamp server (set to empty to disable)
+
+# GoDaddy timestamp server
 TIMESTAMP_SERVER=http://tsa.starfieldtech.com
+# The timestamp server may be throttled, if this happens try adding a delay
+# and retry
+TIMESTAMP_SERVER_DELAY=2
+FAILURE_RETRIES=3
+# Uncomment to disable
 #TIMESTAMP_SERVER=
 
 jarsign() {
+    FAILURES=0
     JAR="$1"
     echo "Signing $JAR"
     if [ -n "$TIMESTAMP_SERVER" ]; then
-        jarsigner -keystore "$JAVA_KEYSTORE" -storepass "$JAVA_KEYSTORE_PASSWORD" -keypass "$JAVA_PRIVKEY_PASSWORD" -tsa "$TIMESTAMP_SERVER" "$JAR" "$ALIAS"
+        while [ $FAILURES -lt $FAILURE_RETRIES ]; do
+            jarsigner -keystore "$JAVA_KEYSTORE" \
+                -storepass "$JAVA_KEYSTORE_PASSWORD" \
+                -keypass "$JAVA_PRIVKEY_PASSWORD" \
+                -tsa "$TIMESTAMP_SERVER" \
+                "$JAR" "$ALIAS" \
+                && break || let FAILURES+=1
+            if [ $FAILURES -ge $FAILURE_RETRIES ]; then
+                echo "ERROR: Failed to sign $JAR after $FAILURES attempts"
+                exit 3
+            fi
+            sleep "$TIMESTAMP_SERVER_DELAY"
+        done
     else
-        jarsigner -keystore "$JAVA_KEYSTORE" -storepass "$JAVA_KEYSTORE_PASSWORD" -keypass "$JAVA_PRIVKEY_PASSWORD" "$JAR" "$ALIAS"
+        jarsigner -keystore "$JAVA_KEYSTORE" \
+            -storepass "$JAVA_KEYSTORE_PASSWORD" \
+            -keypass "$JAVA_PRIVKEY_PASSWORD" \
+            "$JAR" "$ALIAS"
     fi
 }
 
