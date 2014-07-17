@@ -33,6 +33,7 @@ class Status(object):
         self.unknowncert = None
         self.notimestamp = None
         self.nomanifest = None
+        self.expiresoon = None
 
     def __str__(self):
         s = '%s %s' % (self.jarname, 'Signed' if self.verified else 'Unsigned')
@@ -44,6 +45,8 @@ class Status(object):
             s += ' no-timestamp'
         if self.nomanifest:
             s += ' no-manifest'
+        if self.expiresoon:
+            s += ' expire-soon'
         return s
 
 
@@ -75,6 +78,10 @@ def parse_jarsigner_verify(jarname, out):
                              'include a timestamp.'):
             assert s.notimestamp is None
             s.notimestamp = True
+        elif line.startswith('This jar contains entries whose signer '
+                              'certificate will expire within six months.'):
+            assert s.expiresoon is None
+            s.expiresoon = True
         elif line.startswith('Re-run with the -verbose and -certs options for'
                              ' more details.'):
             continue
@@ -123,6 +130,7 @@ def summarise_statuses(statuses):
     unknowncert = 0
     notimestamp = 0
     nomanifest = 0
+    expiresoon = 0
     total = len(statuses)
 
     for s in statuses:
@@ -136,10 +144,13 @@ def summarise_statuses(statuses):
             notimestamp += 1
         if s.nomanifest:
             nomanifest += 1
+        if s.expiresoon:
+            expiresoon += 1
 
     return ('%d/%d signed %d warn %d unknown-cert %d not-timestamped %d '
-            'no-manifest' % (
-                signed, total, warning, unknowncert, notimestamp, nomanifest))
+            'no-manifest %d expire-soon' % (
+                signed, total, warning, unknowncert, notimestamp, nomanifest,
+                expiresoon))
 
 
 def main(args):
